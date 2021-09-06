@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: com.typesafe.sbt:sbt-interface:0.13.15">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/../apache-maven-3.6.3/repository/com/typesafe/sbt/sbt-interface/0.13.15/sbt-interface-0.13.15.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$PROJECT_DIR$/../apache-maven-3.6.3/repository/com/typesafe/sbt/sbt-interface/0.13.15/sbt-interface-0.13.15-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$PROJECT_DIR$/../apache-maven-3.6.3/repository/com/typesafe/sbt/sbt-interface/0.13.15/sbt-interface-0.13.15-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

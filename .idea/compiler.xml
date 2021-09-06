@@ -9,5 +9,8 @@
         <module name="Jikeshijan" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="Jikeshijan" target="8" />
+    </bytecodeTargetLevel>
   </component>
 </project>

@@ -1,7 +1,7 @@
 package org.jikeshij.zly.Distcp;
 
+
 import org.apache.commons.cli.*;
-import org.apache.hbase.thirdparty.org.apache.commons.cli.DefaultParser;
 
 import java.util.List;
 
@@ -29,7 +29,7 @@ public class OptionParser {
 
     public void parseOption(String[] args) throws ParseException{
         Options options = new Options();
-        options.addOption(Options.builder("i")
+        options.addOption(Option.builder("i")
                 .longOpt("ignore")
                 .argName("ignore")
                 .hasArg()
@@ -46,9 +46,9 @@ public class OptionParser {
         options.addOption(Option.builder("h")
                 .longOpt("help")
                 .desc("Show this help message and exit program")
-                .build());build
+                .build());
 
-        CommandLineParser parser = (CommandLineParser) new DefaultParser();
+        CommandLineParser parser = new DefaultParser();
         HelpFormatter formatter = new HelpFormatter();
         CommandLine cmd = parser.parse(options, args);
 
