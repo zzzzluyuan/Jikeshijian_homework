@@ -1,38 +1,60 @@
+import org.apache.spark.rdd.RDD
 import org.apache.spark.{SparkConf, SparkContext}
 
 import scala.collection.mutable._
 
 object InvertedIndex {
   def main(args: Array[String]): Unit = {
-    val conf = new SparkConf().setAppName("Inverted Index")
-    val sc =new SparkContext(conf)
-    //SparkContext.wholeTextFiles允许你读取文件夹下所有的文件，比如多个小的文本文件， 返回文件名/内容对。
-    val files =sc.wholeTextFiles("/Users/zhangluyuan/Downloads/jkshijian")
-    //因为读进来的文件是路径，所以要把文件名过滤一下，前面的都去掉，只留下文件自己的名字
-    val file_name_length = files.map(x=>x._1.split("/").length).collect()(0)
-    val file_name_context= files.map(x=>(x._1.split("/")(file_name_length-1),x._2)).sortByKey()
-    val words =file_name_context.flatMap(x=>{
-      //首先要根据行来切分
-      val line =x._2.split("\n")
-      //每个文件生成的（文件名，单词）对用链表给串起来。注意按照下面的方法生成的list是带有一个空节点的指针，也就是说它的第一元素是null
-      val list =LinkedList[(String,String)]()
-      //temp相当于是一个临时的指针，用来给list插入元素的。在scala语言中，val是不可变的，var是可变的
-      var temp =list
-      //对每一行而言，需要根据单词拆分，然后把每个单词组成（文件名，单词）对，链到list上
-      for(i <- 0 to line.length-1){
-        val word =line(i).split(" ").iterator
-        while (word.hasNext){
-          temp.next=LinkedList[(String,String)]((x._1,word.next()))
-          temp=temp.next
-        }
-      }
-      //我们得到的list的第一个元素是null，drop函数是去掉前n个数，这里是1，我们要把第一个元素null给去掉
-      val list_end=list.drop(1)
-      //这个list_end是这个flatMap算子中x所要得到的东西，scala语言居然可以这样写，我也是醉了
-      list_end
-    }).distinct()
-    //首先按照文件名排序，然后调换map的位置，将文件名串起来，再根据单词排序，最后保存
-    words.sortByKey().map(x=>(x._2,x._1)).reduceByKey((a,b)=>a+";"+b).sortByKey().saveAsTextFile("/Users/zhangluyuan/Downloads/jkshijian")
+    val sparkConf = new SparkConf()
+    val master: String = {
+      if (args.length > 0) args.apply(0)
+      "local[*]"
+    }
+    sparkConf.setMaster(master).setAppName("InvertedIndex")
+    val sc = new SparkContext(sparkConf)
+
+    //读取文件目录，其中包含若干个文件
+    val srcFile: String = {
+      if (args.length > 1) args.apply(1)
+      System.getProperty("user.dir")+"\\Users\\zhangluyuan\\Downloads\\Jikeshijan\\src\\main\\resources"
+    }
+    val outputFile: String = {
+      if (args.length > 2) args.apply(2)
+      srcFile + "-output-" + System.currentTimeMillis()
+    }
+    println("input file is:" + srcFile)
+    println("outputFile is :" + outputFile)
+
+    //
+    //
+    //
+    val rdd: RDD[String] = sc.textFile("file:///" + srcFile)
+    //每个文件按行拆分后再按单词拆分，并形成(单词、文件序号)的元组集合
+    val rdd2 = rdd.mapPartitionsWithIndex((fileIndex, partition) => partition.flatMap(line => line.split(" ")).map(word => (word, fileIndex)));
+    //    rdd2.cache()
+    //    println("print rdd2")
+    //    rdd2.foreach(println)
+
+    // 根据(word,fileIndex)元组的word进行group分组,每个word对应1个元组：(word,List<(word,fileIndex)>)
+    val rdd3 = rdd2.groupBy(wordIndexTuple => wordIndexTuple._1)
+    //    rdd3.cache()
+    //    println("===============print rdd3")
+    //    rdd3.foreach(println)
+
+    //对分组后的每个word里的List<(word,fileIndex)>进行处理转换
+    val rdd4 = rdd3.map(sameWordTuple =>
+      (sameWordTuple._1, //得到word
+        sameWordTuple._2.map(innerTuple => innerTuple._2) //得到fileIndex
+          .groupBy(fileIndex => fileIndex) //相同fileIndex的再进行分组
+          .map(
+            indexTuple => (indexTuple._1, indexTuple._2.size) //得到每个文件index及这个index里word出现的次数
+          )
+      )
+    ).sortBy(wordCntTuple => wordCntTuple._1) //再按word排序
+    //    rdd4.cache()
+    //    println("===============print rdd4")
+    //    rdd4.foreach(println)
+    rdd4.repartition(1).saveAsTextFile("file:///" + outputFile)
     sc.stop()
   }
 
