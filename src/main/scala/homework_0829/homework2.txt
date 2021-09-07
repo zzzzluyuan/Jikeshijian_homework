@@ -1,6 +1,6 @@
 1、构建一条SQL，同时apply下面三条优化规则：
 
-  CombineFilters CollapseProject BooleanSimplification
+ CombineFilters CollapseProject BooleanSimplification
  建表语句：
  create table employee (name string, year integer, salary double);
  insert into table employee values('zhangsan',23,3000);
