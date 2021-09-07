@@ -1,3 +1,4 @@
+环境有问题，sql未执行，暂无截图
 1、构建一条SQL，同时apply下面三条优化规则：
 
   CombineFilters CollapseProject BooleanSimplification
