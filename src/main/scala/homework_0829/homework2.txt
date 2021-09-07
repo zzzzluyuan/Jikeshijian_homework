@@ -9,12 +9,11 @@
  insert into table employee values('zhaoliu',29,8000);
 
  -- 执行SQL语句
- select name from (select year+(2+3),name from employee where  year <30 and 1=1) a where a.name='zhangsan';
+ select name from (select year+(2+3),name from employee where  year < 30 and 1=1) a where where a.name='zhangsan';
 2、构建一条SQL，同时apply下面五条优化规则：
 
   ConstantFolding PushDownPredicates ReplaceDistinctWithAggregate ReplaceExceptWithAntiJoin FoldablePropagation
 
   select  distinct name,'A' as test from (select year+(2+3),name from employee where year in(23,24)  and 1=1
-  except select year+(2+3),name from employee where year=23) a where a.name='zhangsan'
-  order by test;
-
+    except select year+(2+3),name from employee where year=23) a where a.name='zhangsan'
+    order by test;
