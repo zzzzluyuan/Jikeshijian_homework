@@ -1,3 +1,5 @@
+package distcp
+
 import org.apache.hadoop.fs.{CommonConfigurationKeysPublic, FileSystem, Path}
 import org.apache.hadoop.hive.common.FileUtils
 import org.apache.hadoop.hive.conf.HiveConf

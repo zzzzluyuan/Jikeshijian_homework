@@ -1,7 +1,7 @@
-package org.jikeshj.zly.main;
+package org.jikeshij.zly.main;
 
 import org.apache.hadoop.hbase.client.Put;
-import org.jikeshj.zly.Imp.HBaseImp;
+import org.jikeshij.zly.Imp.HBaseImp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

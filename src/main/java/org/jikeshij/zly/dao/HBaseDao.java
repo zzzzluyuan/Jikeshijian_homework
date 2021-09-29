@@ -1,4 +1,4 @@
-package org.jikeshj.zly.dao;
+package org.jikeshij.zly.dao;
 
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;

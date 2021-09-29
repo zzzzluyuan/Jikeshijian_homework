@@ -1,3 +1,5 @@
+package distcp
+
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.{FileSystem, FileUtil, Path}
 import org.apache.spark.{SparkConf, SparkContext}

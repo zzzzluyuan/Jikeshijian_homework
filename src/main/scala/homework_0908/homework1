@@ -1,0 +1,4 @@
+解决小文件个数：
+(1)spark可以group by或distribute by来限制，比如distribute by rand()
+(2)通过参数设置，指定分区个数，即小文件set spark.sql.shuffle.partitions=X;
+(3)使用coalesce来合并小文件

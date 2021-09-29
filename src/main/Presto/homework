@@ -1,0 +1,48 @@
+1. 搜索HyperLogLog算法相关内容，了解其原理，写出5条HyperLogLog的用途或大数据场景下的实际案例。
+ HyperLogLog算法需要完整遍历所有元素一次，而非多次或采样；该算法只能计算集合中有多少个不重复的元素，
+ 不能给出每个元素的出现次数或是判断一个元素是否之前出现过；多个使用 HLL 统计出的基数值可以融合
+(1)需要进行去重的场景，比如计算uv
+(2)时间复杂度是一个线性的时间复杂度
+(3)使用分桶的思想，通过多次的进行试验来减少误差，桶的个数越多，HyperLogLog算法的精度就越高
+(4)
+(5)
+2. 在本地docker环境或阿里云e-mapreduce环境进行SQL查询，
+要求在Presto中使用HyperLogLog计算近似基数。（请自行创建表并插入若干数据）
+CREATE TABLE table_test1(
+  begindate integer,
+  media varchar,
+  hll varbinary
+);
+
+
+create table table_test2(
+ userid integer,
+ media varchar,
+ daytime integer
+);
+
+insert into table_test2 values(1,'zhangsna',20210923);
+insert into table_test2 values(2,'zhangsna',20210924);
+insert into table_test2 values(3,'zhangsna',20210925);
+insert into table_test2 values(4,'zhangsna',20210926);
+insert into table_test2 values(5,'zhangsna',20210927);
+insert into table_test2 values(6,'zhangsna',20210921);
+insert into table_test2 values(4,'zhangsna',20210922);
+insert into table_test2 values(5,'zhangsna',20210919);
+insert into table_test2 values(6,'zhangsna',20210918);
+insert into table_test2 values(8,'zhangsna',20210921);
+insert into table_test2 values(9,'zhangsna',20210921);
+select * from table_test2;
+select * from table_test1;
+
+INSERT INTO table_test1
+SELECT daytime, media, cast(approx_set(userid) AS varbinary)
+FROM table_test2
+GROUP BY daytime, media;
+
+
+SELECT media,cardinality(merge(cast(hll AS HyperLogLog))) AS daily_unique_users
+FROM table_test1
+WHERE begindate=20210921
+group by media;
+3. 学习使用Presto-Jdbc库连接docker或e-mapreduce环境，重复上述查询。（选做）

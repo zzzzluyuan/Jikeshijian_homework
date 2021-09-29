@@ -1,0 +1,59 @@
+对比之前作业show version
+第一步：添加自定义语句到 SqlBase.g4
+| COMPACT TABLE target=tableIdentifier partitionSpec?
+    (INTO fileNum=INTEGER_VALUE identifier)?                       #compactTable
+第二步：执行 antlr 生成代码
+
+第三步：添加 visitCompactTable 方法到 SparkSqlParser.scala
+override def visitCompactTable(ctx: CompactTableContext): LogicalPlan = withOrigin(ctx) {
+    val table = visitTableIdentifier(ctx.tableIdentifier())
+    // 文件个数
+    val filesNum = if (ctx.INTEGER_VALUE() != null) {
+      Some(ctx.INTEGER_VALUE().getText)
+    } else {
+      None
+    }
+    CompactTableCommand(table, filesNum)
+  }
+
+// org\apache\spark\sql\execution\command\tables.scala
+case class CompactTableCommand(
+  table: TableIdentifier,
+  filesNum: Option[String]) extends LeafRunnableCommand {
+  // 临时表名称
+  val tempTable: TableIdentifier = TableIdentifier(s"temp_table_${System.nanoTime()}")
+
+  override def output: Seq[Attribute] = Seq(
+    AttributeReference("compat_stmt", StringType, nullable = false)()
+  )
+
+  override def run(sparkSession: SparkSession): Seq[Row] = {
+    sparkSession.catalog.setCurrentDatabase(table.database.getOrElse("default"))
+
+    val tmpDF = sparkSession.table(table.identifier)
+    val partitions = filesNum match {
+      case Some(files) => files.toInt
+      // 如果未指定文件数，则通过执行计划获取文件大小，并除以 128M 得到分区数
+      case None => (sparkSession.sessionState
+          .executePlan(tmpDF.queryExecution.logical)
+          .optimizedPlan
+          .stats
+          .sizeInBytes >> 27).toInt
+    }
+    // 写入临时表
+    tmpDF.repartition(partitions)
+      .write
+      .mode(SaveMode.Overwrite)
+      .saveAsTable(tempTable.identifier)
+    // 合并文件
+    sparkSession.table(tempTable.identifier)
+      .write
+      .mode(SaveMode.Overwrite)
+      .saveAsTable(table.identifier)
+    // 清除临时表
+    sparkSession.sql(s"DROP TABLE ${tempTable.identifier}")
+    Seq(Row(s"Compacte Table $table finished."))
+  }
+}
+第四步：执行 ./build/sbt package -Phive -Phive-thriftserver -DskipTests 进行编译
+一直打包不成功，暂无截图

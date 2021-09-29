@@ -1,4 +1,4 @@
-package org.jikeshj.zly.conn;
+package org.jikeshij.zly.conn;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;

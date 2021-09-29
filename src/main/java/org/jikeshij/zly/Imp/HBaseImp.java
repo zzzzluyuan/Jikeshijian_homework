@@ -1,12 +1,11 @@
-package org.jikeshj.zly.Imp;
+package org.jikeshij.zly.Imp;
 
 
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.*;
-import org.apache.hadoop.hbase.filter.FilterList;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.jikeshj.zly.conn.HBaseConn;
-import org.jikeshj.zly.dao.HBaseDao;
+import org.jikeshij.zly.conn.HBaseConn;
+import org.jikeshij.zly.dao.HBaseDao;
 
 import java.io.IOException;
 import java.util.List;
@@ -15,7 +14,7 @@ public class HBaseImp implements HBaseDao {
 
     public void createTable(String tableName, String[] columnFamilys) {
         try {
-            HBaseAdmin admin = (HBaseAdmin)HBaseConn.getHBaseConn().getAdmin();
+            HBaseAdmin admin = (HBaseAdmin) HBaseConn.getHBaseConn().getAdmin();
             if (admin.tableExists(TableName.valueOf(tableName))) {
                 System.out.println("The table [" + tableName + "] is already exist.");
             }else{
